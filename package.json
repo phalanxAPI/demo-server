@@ -1,14 +1,22 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "nodemon app.js",
-    "start": "node app.js"
+    "dev": "bun --hot app.ts",
+    "start": "bun app.ts"
   },
   "dependencies": {
+    "@types/express": "^4.17.21",
+    "axios": "^1.7.4",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "bun-types": "latest"
+  },
+  "name": "demo-server",
+  "module": "app.ts",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }
