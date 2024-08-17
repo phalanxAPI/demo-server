@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get("/", (_, res) => {
-  res.send("This is THE Phalanx Demo Server");
+  res.send("This is THE Phalanx Test Server");
 });
 
 app.listen(port, () => {
