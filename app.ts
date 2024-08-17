@@ -3,19 +3,19 @@ dotenv.config();
 
 import axios from "axios";
 import express from "express";
-import phalanx from "./phalanx/index.js";
+import phalanx from "./phalanx";
+import router from "./routes";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 
 // Config Routes
 app.get("/", (_, res) => {
   res.send("This is THE Phalanx Test Server");
 });
 
-app.post("/test", (_, res) => {
-  res.send("This is a test endpoint");
-});
+// Setup Demo Routes
+app.use("/api/v1", router);
 
 // Config Phalanx
 const PHALANX_OPTIONS = {
