@@ -9,6 +9,13 @@ import router from "./routes";
 const app = express();
 const port = process.env.PORT || 8000;
 
+const appId = process.env.APP_ID || "phalanx-test";
+const serverId = process.env.SERVER_ID || "phalanx-test-server-1";
+
+// Config Phalanx Formation
+const PHALANX_FORMATION_OPTIONS = { appId, serverId, app, axios };
+phalanx.formation(PHALANX_FORMATION_OPTIONS);
+
 // Config Routes
 app.get("/", (_, res) => {
   res.send("This is THE Phalanx Test Server");
@@ -18,13 +25,8 @@ app.get("/", (_, res) => {
 app.use("/api/v1", router);
 
 // Config Phalanx
-const PHALANX_OPTIONS = {
-  appId: "phalanx-test",
-  serverId: "phalanx-test-server-1",
-  app,
-  axios,
-};
-phalanx.formation(PHALANX_OPTIONS);
+const PHALANX_DEPLOY_OPTIONS = { appId, serverId, app };
+phalanx.deploy(PHALANX_DEPLOY_OPTIONS);
 
 // Start Server
 app.listen(port, () => {
