@@ -25,7 +25,7 @@ app.get("/", (_, res) => {
 app.use("/api/v1", router);
 
 // Config Phalanx
-const PHALANX_DEPLOY_OPTIONS = { appId, serverId, app };
+const PHALANX_DEPLOY_OPTIONS = { appId, app };
 phalanx.deploy(PHALANX_DEPLOY_OPTIONS);
 
 // Start Server
