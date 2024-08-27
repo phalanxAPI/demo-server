@@ -48,7 +48,7 @@ router
   .get("/phalanx/tokens", validatePhalanxRequest, (req, res) => {
     res.send(tokens);
   })
-  .post("/phalanx/user-data", validatePhalanxRequest, (req, res) => {
+  .get("/phalanx/user-data", validatePhalanxRequest, (req, res) => {
     res.send(userData);
   })
 
