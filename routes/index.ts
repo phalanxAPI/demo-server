@@ -18,19 +18,19 @@ const userData = {
     id: "admin",
     firstName: "Admin",
     lastName: "User",
-    email: "admin@phalanx.xyz",
+    isAdmin: true,
   },
   user1: {
     id: "user1",
     firstName: "User",
     lastName: "One",
-    email: "user1@phalanx.xyz",
+    isAdmin: false,
   },
   user2: {
     id: "user2",
     firstName: "User",
     lastName: "Two",
-    email: "user2@phalanx.xyz",
+    isAdmin: false,
   },
 };
 
@@ -63,6 +63,14 @@ router
       return res.status(401).send("Unauthorized Access");
     }
 
+    const userOfToken = Object.keys(tokens).find(
+      (key) => tokens[key as keyof typeof tokens] === token
+    );
+
+    if (!userOfToken) {
+      return res.status(401).send("Unauthorized Access");
+    }
+
     // check if the token of requesting user is same as the token of the user being requested
     if (tokens[userId as keyof typeof tokens] !== token) {
       return res.status(403).send("Forbidden Access");
@@ -70,7 +78,33 @@ router
 
     return res.send(userData[userId as keyof typeof userData]);
   })
-  .delete("/test", demoController)
+
+  // Broken Property Level Authorization
+  .put("/test", (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1] as string;
+    const body = req.body;
+
+    if (!token) {
+      return res.status(401).send("Unauthorized Access");
+    }
+
+    const userOfToken = Object.keys(tokens).find(
+      (key) => tokens[key as keyof typeof tokens] === token
+    );
+
+    if (!userOfToken) {
+      return res.status(401).send("Unauthorized Access");
+    }
+
+    // check if body contains isAdmin property and is not admin
+    if (body.isAdmin && !userData[body.id as keyof typeof userData].isAdmin) {
+      return res.status(403).send("Forbidden Access");
+    }
+
+    // Validate and update data
+    Object.assign(userData[body.id as keyof typeof userData], body);
+    return res.send(userData[body.id as keyof typeof userData]);
+  })
   .get("/test/example", demoController)
   .post("/test/example", demoController)
   .get("/example", demoController)
