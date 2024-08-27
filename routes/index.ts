@@ -1,4 +1,6 @@
-import { Request, Response, Router } from "express";
+import bodyParser from "body-parser";
+import express, { Request, Response, Router } from "express";
+import rateLimit from "express-rate-limit";
 import { uuid } from "uuidv4";
 
 export const router = Router();
@@ -45,6 +47,15 @@ const validatePhalanxRequest = (req: Request, res: Response, next: any) => {
   next();
 };
 
+const createRateLimiter = (maxRequests = 100) =>
+  rateLimit({
+    windowMs: 60 * 1000, // 1 minutes
+    max: maxRequests,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Too many requests, please try again after 1 minute",
+  });
+
 router
   .get("/phalanx/tokens", validatePhalanxRequest, (req, res) => {
     res.send(tokens);
@@ -54,7 +65,7 @@ router
   })
 
   // Object Level Authorization
-  // Broken Authentication
+  // Authentication
   .get("/test", (req, res) => {
     const token = req.headers.authorization?.split(" ")[1] as string;
     const userId = req.query.userId as string;
@@ -79,7 +90,7 @@ router
     return res.send(userData[userId as keyof typeof userData]);
   })
 
-  // Broken Property Level Authorization
+  // Property Level Authorization
   .put("/test", (req, res) => {
     const token = req.headers.authorization?.split(" ")[1] as string;
     const body = req.body;
@@ -105,7 +116,33 @@ router
     Object.assign(userData[body.id as keyof typeof userData], body);
     return res.send(userData[body.id as keyof typeof userData]);
   })
-  .get("/test/example", demoController)
+
+  // Function Level Authorization
+  .get("/test/internal-info", (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1] as string;
+
+    if (!token) {
+      return res.status(401).send("Unauthorized Access");
+    }
+
+    const userOfToken = Object.keys(tokens).find(
+      (key) => tokens[key as keyof typeof tokens] === token
+    );
+
+    if (!userOfToken) {
+      return res.status(401).send("Unauthorized Access");
+    }
+
+    // check if the user is admin
+    if (!userData[userOfToken as keyof typeof userData].isAdmin) {
+      return res.status(403).send("Forbidden Access");
+    }
+
+    return res.send(userData);
+  })
+
+  // Restricted Resource Consumption
+  .post("/test/public", createRateLimiter(10), demoController)
   .post("/test/example", demoController)
   .get("/example", demoController)
   .post("/example", demoController);

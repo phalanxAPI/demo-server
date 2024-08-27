@@ -8,7 +8,7 @@ import phalanx from "./phalanx";
 import router from "./routes";
 
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "10kb" }));
 
 const port = process.env.PORT || 8000;
 const appId = process.env.APP_ID || "phalanx-test";
