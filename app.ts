@@ -2,13 +2,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import axios from "axios";
+import bodyParser from "body-parser";
 import express from "express";
 import phalanx from "./phalanx";
 import router from "./routes";
 
 const app = express();
-const port = process.env.PORT || 8000;
+app.use(bodyParser.json());
 
+const port = process.env.PORT || 8000;
 const appId = process.env.APP_ID || "phalanx-test";
 const serverId = process.env.SERVER_ID || "phalanx-test-server-1";
 
