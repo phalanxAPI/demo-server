@@ -34,11 +34,7 @@ const userData = {
 const validatePhalanxRequest = (req: Request, res: Response, next: any) => {
   // *Validate Common Security Token
   const commonSecurityToken = req.headers["phalanx-shared-secret"];
-  console.log("commonSecurityToken", commonSecurityToken);
-  console.log(
-    "process.env.PHALANX_SHARED_SECRET",
-    process.env.PHALANX_SHARED_SECRET
-  );
+
   if (commonSecurityToken !== process.env.PHALANX_SHARED_SECRET) {
     return res.status(401).send("Unauthorized Access");
   }
