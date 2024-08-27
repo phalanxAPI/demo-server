@@ -15,16 +15,19 @@ const tokens = {
 
 const userData = {
   admin: {
+    id: "admin",
     firstName: "Admin",
     lastName: "User",
     email: "admin@phalanx.xyz",
   },
   user1: {
+    id: "user1",
     firstName: "User",
     lastName: "One",
     email: "user1@phalanx.xyz",
   },
   user2: {
+    id: "user2",
     firstName: "User",
     lastName: "Two",
     email: "user2@phalanx.xyz",
@@ -50,7 +53,23 @@ router
     res.send(userData);
   })
 
-  .put("/test", demoController)
+  // Object Level Authorization
+  // Broken Authentication
+  .get("/test", (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1] as string;
+    const userId = req.query.userId as string;
+
+    if (!token) {
+      return res.status(401).send("Unauthorized Access");
+    }
+
+    // check if the token of requesting user is same as the token of the user being requested
+    if (tokens[userId as keyof typeof tokens] !== token) {
+      return res.status(403).send("Forbidden Access");
+    }
+
+    return res.send(userData[userId as keyof typeof userData]);
+  })
   .delete("/test", demoController)
   .get("/test/example", demoController)
   .post("/test/example", demoController)
