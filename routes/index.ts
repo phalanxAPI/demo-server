@@ -193,7 +193,6 @@ router
     await axios.get(url);
 
     return res.send("Avatar Rendered");
-  })
-  .post("/example", demoController);
+  });
 
 export default router;
