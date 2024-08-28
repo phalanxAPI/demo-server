@@ -172,7 +172,27 @@ router
     return res.send("Order Processed");
   })
 
-  .get("/example", demoController)
+  // server side request forgery
+  .get("/test/render-avatar", async (req, res) => {
+    const url = req.query.url as string;
+
+    console.log({ url });
+    if (!url) {
+      return res.status(400).send("Bad Request");
+    }
+
+    // The format should be: https://api.dicebear.com/8.x/adventurer/svg?seed={{...}}
+    const regex =
+      /^https:\/\/api\.dicebear\.com\/8\.x\/adventurer\/svg\?seed=.+$/;
+    if (!regex.test(url)) {
+      return res.status(400).send("Bad Request");
+    }
+
+    // Fetch and store somewhere
+    await fetch(url);
+
+    return res.send("Avatar Rendered");
+  })
   .post("/example", demoController);
 
 export default router;
