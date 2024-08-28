@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Request, Response, Router } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
@@ -189,7 +190,7 @@ router
     }
 
     // Fetch and store somewhere
-    await fetch(url);
+    await axios.get(url);
 
     return res.send("Avatar Rendered");
   })
