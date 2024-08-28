@@ -1,6 +1,6 @@
-import bodyParser from "body-parser";
-import express, { Request, Response, Router } from "express";
+import { Request, Response, Router } from "express";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import { uuid } from "uuidv4";
 
 export const router = Router();
@@ -56,6 +56,13 @@ const createRateLimiter = (maxRequests = 100) =>
     message: "Too many requests, please try again after 1 minute",
   });
 
+const cacheControl = (req: Request, res: Response, next: any) => {
+  res.set("Cache-Control", "no-store");
+  next();
+};
+
+const processedOrders: Record<string, boolean> = {};
+
 router
   .get("/phalanx/tokens", validatePhalanxRequest, (req, res) => {
     res.send(tokens);
@@ -66,29 +73,37 @@ router
 
   // Object Level Authorization
   // Authentication
-  .get("/test", (req, res) => {
-    const token = req.headers.authorization?.split(" ")[1] as string;
-    const userId = req.query.userId as string;
+  // Security Configuration
+  .get(
+    "/test",
+    helmet({
+      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    }),
+    cacheControl,
+    (req, res) => {
+      const token = req.headers.authorization?.split(" ")[1] as string;
+      const userId = req.query.userId as string;
 
-    if (!token) {
-      return res.status(401).send("Unauthorized Access");
+      if (!token) {
+        return res.status(401).send("Unauthorized Access");
+      }
+
+      const userOfToken = Object.keys(tokens).find(
+        (key) => tokens[key as keyof typeof tokens] === token
+      );
+
+      if (!userOfToken) {
+        return res.status(401).send("Unauthorized Access");
+      }
+
+      // check if the token of requesting user is same as the token of the user being requested
+      if (tokens[userId as keyof typeof tokens] !== token) {
+        return res.status(403).send("Forbidden Access");
+      }
+
+      return res.send(userData[userId as keyof typeof userData]);
     }
-
-    const userOfToken = Object.keys(tokens).find(
-      (key) => tokens[key as keyof typeof tokens] === token
-    );
-
-    if (!userOfToken) {
-      return res.status(401).send("Unauthorized Access");
-    }
-
-    // check if the token of requesting user is same as the token of the user being requested
-    if (tokens[userId as keyof typeof tokens] !== token) {
-      return res.status(403).send("Forbidden Access");
-    }
-
-    return res.send(userData[userId as keyof typeof userData]);
-  })
+  )
 
   // Property Level Authorization
   .put("/test", (req, res) => {
@@ -143,7 +158,20 @@ router
 
   // Restricted Resource Consumption
   .post("/test/public", createRateLimiter(10), demoController)
-  .post("/test/example", demoController)
+
+  // Restricted Access to Sensitive Business Flow
+  .post("/test/purchase", (req, res) => {
+    const body = req.body;
+    const orderId = body.orderId;
+
+    if (processedOrders[orderId]) {
+      return res.status(403).send("Forbidden Access");
+    }
+
+    processedOrders[orderId] = true;
+    return res.send("Order Processed");
+  })
+
   .get("/example", demoController)
   .post("/example", demoController);
 
