@@ -7,6 +7,7 @@ import { uuid } from "uuidv4";
 export const router = Router();
 
 const demoController = (req: Request, res: Response) => {
+  res.header("Content-Type", "text/plain");
   res.send(`${req.method} ${req.path} Works!`);
 };
 
