@@ -12,7 +12,7 @@ app.use(bodyParser.json({ limit: "10kb" }));
 
 const port = process.env.PORT || 8000;
 const appId = process.env.APP_ID || "phalanx-test";
-const serverId = process.env.SERVER_ID || "phalanx-test-server-1";
+const serverId = process.env.SERVER_ID || "test-server-1";
 
 // Config Phalanx Formation
 const PHALANX_FORMATION_OPTIONS = { appId, serverId, app, axios };
