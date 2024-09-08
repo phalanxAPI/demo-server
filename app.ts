@@ -8,6 +8,7 @@ import phalanx from "./phalanx";
 import router from "./routes";
 
 const app = express();
+app.use(bodyParser.raw({ limit: "10kb" }));
 app.use(bodyParser.json({ limit: "10kb" }));
 
 const port = process.env.PORT || 8000;
@@ -31,7 +32,7 @@ const PHALANX_DEPLOY_OPTIONS = {
   app,
   appId,
   serverId,
-  baseUrl: "http://localhost:8000",
+  baseUrl: "http://localhost:8001",
 };
 phalanx.deploy(PHALANX_DEPLOY_OPTIONS);
 
